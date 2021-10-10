@@ -61,7 +61,7 @@ def getRandomData(num):
     protein = alphabet
 
     data_rand = ""
-    
+
     if num < 1:
         print("[+] Not generated random sequences . . .")
         return data_rand
@@ -135,25 +135,25 @@ def BackTracking(data,score, row, col,subsequence):
     if min_direction == score[m][n]: #* No diagonal.
         print("Case - All the same",end = " -> ")
         n -= 1
-        print("Now Position : ","(",m ,",",n,")")
+        print("Now Position : ({0},{1})".format(m,n))
         subsequence = BackTracking(data,score,m,n,subsequence)
     elif direction == score[m-1][n-1]: #* Diagonal first
         print("Case - Move diagonally",end = " -> ")
         m -= 1
         n -= 1
-        print("Now Position : ", "(",m ,",",n,")")
+        print("Now Position : ({0},{1})".format(m,n))
         subsequence.insert(0,data[m])
         print("[Backtracking] data: ", data[m],"is added.")
         subsequence = BackTracking(data,score,m,n,subsequence)
     elif direction == score[m][n-1]: #* horizontal second
         print("Case - Move horizontally",end = " -> ")
         n -= 1
-        print("Now Position : ","(",m ,",",n,")")
+        print("Now Position : ({0},{1})".format(m,n))
         subsequence = BackTracking(data, score,m,n,subsequence)
     else: #* vertical last
         print("Case - Move vertically",end = " -> ")
         m -= 1
-        print("Now Position : ","(",m ,",",n,")")
+        print("Now Position : ({0},{1})".format(m,n))
         subsequence = BackTracking(data,score,m,n,subsequence)
     
     if score[m][n] == 0:
