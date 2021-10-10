@@ -2,13 +2,13 @@
 Bio Computing Assignment 2, Longest Common Subsequence Finding
 2016253072
 명수환(Myeong Suhwan)
-
 '''
 
 import re
 import random
 from datetime import datetime
 import string
+import sys
 
 def getDataFromFile(filename):
     data1 = ""
@@ -17,15 +17,15 @@ def getDataFromFile(filename):
         with open(filename, 'r') as file:
             line = None
             line = file.readline() # comment
-            if not line:
-                print("No input data . . .")
+            if not line: # * input_file is empty
+                print("[-] No protein sequence . . .")
                 exit(1)
             
             if(line[0] == '>'): # * must accept only first FASTA format.
                 print("1st FASTA : [Comment]")
                 print(line)
             else:
-                print("No correct format . . .")
+                print("[-] No correct format . . .")
             while line != '':
                 line = file.readline()
                 if line:
@@ -33,17 +33,23 @@ def getDataFromFile(filename):
                         print("2nd FASTA : [Comment]")
                         print(line)
                         while line != '':
+                            
                             line = file.readline()
+                            print(line)
                             if line:
                                 if(line[0] == '>'): # * ignore 3rd and after FASTA format.
-                                    break
+                                    print("[+] 3rd FASTA is ignored . . .")
+                                    return data1, data2
                                 else:
                                     data2 += line.strip('\n')
                     else:
                         data1 += line.strip('\n')
+                else:
+                    print("[-] Need one more sequence.")
+                    exit(1)
                 
     except FileNotFoundError:
-        print("No input file . . .")
+        print("[-] No input file . . .")
         
     return data1, data2
 
@@ -53,10 +59,19 @@ def getRandomData(num):
     alphabet = list(alphabet)
     
     protein = alphabet
-    if num < 1:
-        print("Not generated random sequences . . .")
-        
+
     data_rand = ""
+    
+    if num < 1:
+        print("[+] Not generated random sequences . . .")
+        return data_rand
+    if num > 500:
+        print("[-] About Maximum recursion depth Error . . ")
+        print("[-] This program limit the number of randomly generated data below 500 . . ")
+        print("[-] Thus, The number of randomly generated data is set to 500 . . ")
+        num = 500
+        
+    
     
     while num:
         data_rand += protein[random.randint(0,51)]
@@ -80,9 +95,9 @@ def FindLCSUsingDP(data1, data2):
     score = [[0 for col in range(m)] for row in range(n)]
     
     for i in range(m):
-        score[i][0] = 0
+        score[i][0] = 0 # * fill these blocks with 0
     for j in range(n):
-        score[0][j] = 0
+        score[0][j] = 0 # * fill these blocks with 0
     for i in range(1,m):
         for j in range(1,n):
             if data1[i-1] == data2[j-1]:
@@ -93,18 +108,21 @@ def FindLCSUsingDP(data1, data2):
                 score[i][j] = max(score[i-1][j],score[i][j-1])
     
     #!DEBUG
-    for i in range(m):
-        print(score[i])
+    # for i in range(m):
+    #     print(score[i])
 
     subsequence = []
     count = score[m-1][n-1] # * length of LCS
-    print("count : ",count)
+    print("[+] Length of LCS : ",count)
     m -=1
     n -=1
+    print("[*] Start the Backtracking . . .")
     BackTracking(data1,score,m,n,subsequence)
+    print("[*] End of the Backtracking . . .")
     return subsequence
 
 def BackTracking(data,score, row, col,subsequence):
+    
     m = row
     n = col
 
@@ -115,27 +133,27 @@ def BackTracking(data,score, row, col,subsequence):
     min_direction = min(score[m][n-1], score[m-1][n], score[m-1][n-1])
     
     if min_direction == score[m][n]: #* No diagonal.
-        print("다같은경우")
+        print("Case - All the same",end = " -> ")
         n -= 1
-        print("현재 위치 : ", m ,n)
+        print("Now Position : ","(",m ,",",n,")")
         subsequence = BackTracking(data,score,m,n,subsequence)
     elif direction == score[m-1][n-1]: #* Diagonal first
-        print("대각선 이동")
+        print("Case - Move diagonally",end = " -> ")
         m -= 1
         n -= 1
-        print("현재 위치 : ", m ,n)
+        print("Now Position : ", "(",m ,",",n,")")
         subsequence.insert(0,data[m])
-        print("data: ", data[m],"을 추가하였습니다.")
+        print("[Backtracking] data: ", data[m],"is added.")
         subsequence = BackTracking(data,score,m,n,subsequence)
     elif direction == score[m][n-1]: #* horizontal second
-        print("수평 이동")
-        print("현재 위치 : ", m ,n)
+        print("Case - Move horizontally",end = " -> ")
         n -= 1
+        print("Now Position : ","(",m ,",",n,")")
         subsequence = BackTracking(data, score,m,n,subsequence)
     else: #* vertical last
-        print("수직 이동")
-        print("현재 위치 : ", m ,n)
+        print("Case - Move vertically",end = " -> ")
         m -= 1
+        print("Now Position : ","(",m ,",",n,")")
         subsequence = BackTracking(data,score,m,n,subsequence)
     
     if score[m][n] == 0:
@@ -144,22 +162,24 @@ def BackTracking(data,score, row, col,subsequence):
 
 
 def main():
+    if len(sys.argv) != 2:
+        print("No input file.")
+        print("<Usage> assignment2.py input_filename.txt")
+        return -1;
     
+    input_filename = sys.argv[1]
+    #input_filename = 'test.txt'
+    #input_filename = 'nothing.txt'
+    #input_filename = '1fasta.txt'
+    #input_filename = '3fasta.txt'
+    #input_filename = 'no_protein.txt'
 
     
     data_not = re.compile(r'[^a-zA-Z]')
     data1 = ""
     data2 = ""
     
-    filename = 'test.txt'
-    #! filname = argv
-    
-    data1,data2 = getDataFromFile(filename)
-    num = 0 # * Generate num DNA Sequences.
-    data1 += getRandomData(num)
-    data2 += getRandomData(num)
-    
-    
+    data1,data2 = getDataFromFile(input_filename)
     data1 = processing(data1)
     data2 = processing(data2)
 
@@ -173,25 +193,21 @@ def main():
         print(no_protein)
         exit(1)
 
-    #! for debug
-    #data1 = "ATGTTAT"
-    #data2 = "ATCGTAC"
 
-    print("[Data1]\n",data1)
-    print("\n")
-    print("[Data2]\n",data2)
-    #print(len(data))
+    num = int(input("Enter the number of Random Data you wanna make : ")) # * Generate Protein Sequences randomly.
+    data1 += getRandomData(num)
+    data2 += getRandomData(num)
 
     start_time = datetime.now()
     LCS = FindLCSUsingDP(data1,data2)
     LCS = "".join(LCS)
-    print("[Data1]\n",data1)
-
-    print("[Data2]\n",data2)
-    print("Longest Common Subsequence : ",LCS)
+    #print("Data1 : ",data1)
+    #print("Data2 : ",data2)
+    print("\n")
+    print("[*] Longest Common Subsequence : ",LCS)
 
     #print(datetime.now())
-    print("Time Elapsed : ", datetime.now() - start_time, "microseconds")
+    print("[+] Time Elapsed : ", datetime.now() - start_time, "microseconds")
 
 if __name__ == '__main__':
     main()
