@@ -29,13 +29,14 @@ def getDataFromFile(filename):
             while line != '':
                 line = file.readline()
                 if line:
+                    
                     if(line[0] == '>'): # * accept 2nd FASTA format.
                         print("2nd FASTA : [Comment]")
                         print(line)
                         while line != '':
                             
                             line = file.readline()
-                            print(line)
+                            
                             if line:
                                 if(line[0] == '>'): # * ignore 3rd and after FASTA format.
                                     print("[+] 3rd FASTA is ignored . . .")
@@ -43,6 +44,7 @@ def getDataFromFile(filename):
                                 else:
                                     data2 += line.strip('\n')
                     else:
+                        
                         data1 += line.strip('\n')
                 else:
                     print("[-] Need one more sequence.")
@@ -92,10 +94,11 @@ def FindLCSUsingDP(data1, data2):
     m = len(data1)+1
     n = len(data2)+1
     
-    score = [[0 for col in range(m)] for row in range(n)]
+    score = [[0 for col in range(n)] for row in range(m)] #!Changed
     
     for i in range(m):
         score[i][0] = 0 # * fill these blocks with 0
+    
     for j in range(n):
         score[0][j] = 0 # * fill these blocks with 0
     for i in range(1,m):
@@ -133,27 +136,27 @@ def BackTracking(data,score, row, col,subsequence):
     min_direction = min(score[m][n-1], score[m-1][n], score[m-1][n-1])
     
     if min_direction == score[m][n]: #* No diagonal.
-        print("Case - All the same",end = " -> ")
+        #*print("Case - All the same",end = " -> ")
         n -= 1
-        print("Now Position : ({0},{1})".format(m,n))
+        #*print("Now Position : ({0},{1})".format(m,n))
         subsequence = BackTracking(data,score,m,n,subsequence)
     elif direction == score[m-1][n-1]: #* Diagonal first
-        print("Case - Move diagonally",end = " -> ")
+        #*print("Case - Move diagonally",end = " -> ")
         m -= 1
         n -= 1
-        print("Now Position : ({0},{1})".format(m,n))
+        #*print("Now Position : ({0},{1})".format(m,n))
         subsequence.insert(0,data[m])
-        print("[Backtracking] data: ", data[m],"is added.")
+        #*print("[Backtracking] data: ", data[m],"is added.")
         subsequence = BackTracking(data,score,m,n,subsequence)
     elif direction == score[m][n-1]: #* horizontal second
-        print("Case - Move horizontally",end = " -> ")
+        #*print("Case - Move horizontally",end = " -> ")
         n -= 1
-        print("Now Position : ({0},{1})".format(m,n))
+        #*print("Now Position : ({0},{1})".format(m,n))
         subsequence = BackTracking(data, score,m,n,subsequence)
     else: #* vertical last
-        print("Case - Move vertically",end = " -> ")
+        #*print("Case - Move vertically",end = " -> ")
         m -= 1
-        print("Now Position : ({0},{1})".format(m,n))
+        #*print("Now Position : ({0},{1})".format(m,n))
         subsequence = BackTracking(data,score,m,n,subsequence)
     
     if score[m][n] == 0:
@@ -197,7 +200,8 @@ def main():
     num = int(input("Enter the number of Random Data you wanna make : ")) # * Generate Protein Sequences randomly.
     data1 += getRandomData(num)
     data2 += getRandomData(num)
-
+    print("Data1 : ",data1)
+    print("Data2 : ",data2)
     start_time = datetime.now()
     LCS = FindLCSUsingDP(data1,data2)
     LCS = "".join(LCS)
